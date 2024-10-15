@@ -10,4 +10,8 @@ router.get('/dashboard', protect, authorize('teacher'), (req, res) => {
   res.json({ message: `Welcome to the teacher dashboard, ${req.user.name}` });
 });
 
+router.get('/dashboard', protect, authorize('teacher'), (req, res) => {
+  res.json({ message: `Welcome to the teacher dashboard, ${req.user.name}` });
+});
+
 module.exports = router;
