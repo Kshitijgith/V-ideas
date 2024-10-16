@@ -1,34 +1,37 @@
-// backend/server.js
 const express = require('express');
-const connectDB = require('./config/db');
 const dotenv = require('dotenv');
-const cors = require('cors');
-console.log(process.env.MONGO_URI);
-console.log(typeof(process.env.MONGO_URI));;
-// Load environment variables
+const connectDB = require('./config/db'); // Connect to the database
+const adminRoutes = require('./routes/adminRoutes');
+const studentRoutes = require('./routes/studentRoutes');
+const guideRoutes = require('./routes/guideRoutes'); // Route for guides
+const cors = require('cors'); // To handle CORS errors
+
+// Load environment variables from .env file
 dotenv.config();
 
-// Connect to database
-connectDB();
-
+// Initialize express
 const app = express();
 
-// Middleware
+// Connect to MongoDB
+connectDB();
+
+// Middleware to parse JSON requests
 app.use(express.json());
+
+// Enable CORS
 app.use(cors());
 
-// Routes
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/login', require('./routes/login'));
-app.use('/api/teacher', require('./routes/teacher')); // Example teacher route
-app.use('/api/student', require('./routes/student')); // Example student route
-app.use('/api/temp', require('./routes/temp'));
-// Default route
-app.post('/', (req, res) => {
-  res.send('MERN Auth App Backend');
+// Admin routes
+app.use('/api/admin', adminRoutes);
+
+// Student routes
+app.use('/api/student', studentRoutes);
+
+// Guide routes
+app.use('/api/guide', guideRoutes); // Add guide routes
+
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-// Start server
-const PORT = process.env.PORT ;
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
