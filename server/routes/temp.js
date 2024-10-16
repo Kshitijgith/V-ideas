@@ -1,50 +1,47 @@
-// backend/routes/seed.js
-const express = require('express');
-const router = express.Router();
-const User = require('../models/user');
-const app=express();
-// @route   POST /api/seed/admin
-// @desc    Create an admin user
-// @access  Public (Remove after use)
+// backend/seeder.js
 
-router.post('/admin', async (req, res) => {
-  const { name, email, password } = req.body;
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
+const Admin = require('../models/admin');
 
-  // Basic validation
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Please provide all fields' });
-  }
+dotenv.config();
 
+// Connect to MongoDB
+mongoose.connect("mongodb+srv://workkshitij16:workkk@cluster0.htqje95.mongodb.net/Videas?retryWrites=true&w=majority&appName=Cluster0", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log('MongoDB Connected'))
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+
+const createAdmin = async () => {
   try {
-    // Check if admin already exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: 'Admin already exists with this email' });
+    const adminExists = await Admin.findOne({ adminEmail: 'kk@gmail.com' });
+    if (adminExists) {
+      console.log('Admin already exists');
+      process.exit();
     }
 
-    // Create new admin user
-    user = new User({
-      name,
-      email,
-      password,
-      role: 'admin',
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash('pass123', salt);
+
+    const admin = new Admin({
+      adminName: 'kk',
+      adminEmail: 'kk@gmail.com',
+      password: hashedPassword,
     });
 
-    await user.save();
-
-    res.status(201).json({
-      message: 'Admin created successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    await admin.save();
+    console.log('Admin created successfully');
+    process.exit();
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error creating Admin:', error);
+    process.exit(1);
   }
-});
+};
 
-module.exports = router;
+createAdmin();
